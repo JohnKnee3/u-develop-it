@@ -1,6 +1,6 @@
 const mysql = require("mysql2");
-const express = require('express');
-const inputCheck = require('./utils/inputCheck');
+const express = require("express");
+const inputCheck = require("./utils/inputCheck");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -11,36 +11,36 @@ app.use(express.json());
 
 // Connect to database
 const db = mysql.createConnection({
-  host: 'localhost',
+  host: "localhost",
   // Your MySQL username,
-  user: 'root',
+  user: "root",
   // Your MySQL password
-  password: '',
-  database: 'election'
+  password: "1Limli2tst9!9pd",
+  database: "election",
 });
 
 // Get all candidates and their party affiliation
-app.get('/api/candidates', (req, res) => {
+app.get("/api/candidates", (req, res) => {
   const sql = `SELECT candidates.*, parties.name 
                 AS party_name 
                 FROM candidates 
                 LEFT JOIN parties 
                 ON candidates.party_id = parties.id`;
-                
+
   db.query(sql, (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
     }
     res.json({
-      message: 'success',
-      data: rows
+      message: "success",
+      data: rows,
     });
   });
 });
 
 // Get single candidate with party affiliation
-app.get('/api/candidate/:id', (req, res) => {
+app.get("/api/candidate/:id", (req, res) => {
   const sql = `SELECT candidates.*, parties.name 
                AS party_name 
                FROM candidates 
@@ -55,20 +55,20 @@ app.get('/api/candidate/:id', (req, res) => {
       return;
     }
     res.json({
-      message: 'success',
-      data: row
+      message: "success",
+      data: row,
     });
   });
 });
 
 // Create a candidate
-app.post('/api/candidate', ({ body }, res) => {
+app.post("/api/candidate", ({ body }, res) => {
   // Candidate is allowed not to be affiliated with a party
   const errors = inputCheck(
     body,
-    'first_name',
-    'last_name',
-    'industry_connected'
+    "first_name",
+    "last_name",
+    "industry_connected"
   );
   if (errors) {
     res.status(400).json({ error: errors });
@@ -80,7 +80,7 @@ app.post('/api/candidate', ({ body }, res) => {
     body.first_name,
     body.last_name,
     body.industry_connected,
-    body.party_id
+    body.party_id,
   ];
 
   db.query(sql, params, (err, result) => {
@@ -89,17 +89,17 @@ app.post('/api/candidate', ({ body }, res) => {
       return;
     }
     res.json({
-      message: 'success',
+      message: "success",
       data: body,
-      changes: result.affectedRows
+      changes: result.affectedRows,
     });
   });
 });
 
 // Update a candidate's party
-app.put('/api/candidate/:id', (req, res) => {
+app.put("/api/candidate/:id", (req, res) => {
   // Candidate is allowed to not have party affiliation
-  const errors = inputCheck(req.body, 'party_id');
+  const errors = inputCheck(req.body, "party_id");
   if (errors) {
     res.status(400).json({ error: errors });
     return;
@@ -114,20 +114,20 @@ app.put('/api/candidate/:id', (req, res) => {
       // check if a record was found
     } else if (!result.affectedRows) {
       res.json({
-        message: 'Candidate not found'
+        message: "Candidate not found",
       });
     } else {
       res.json({
-        message: 'success',
+        message: "success",
         data: req.body,
-        changes: result.affectedRows
+        changes: result.affectedRows,
       });
     }
   });
 });
 
 // Delete a candidate
-app.delete('/api/candidate/:id', (req, res) => {
+app.delete("/api/candidate/:id", (req, res) => {
   const sql = `DELETE FROM candidates WHERE id = ?`;
   const params = [req.params.id];
   db.query(sql, params, (err, result) => {
@@ -135,20 +135,20 @@ app.delete('/api/candidate/:id', (req, res) => {
       res.statusMessage(400).json({ error: res.message });
     } else if (!result.affectedRows) {
       res.json({
-        message: 'Candidate not found'
+        message: "Candidate not found",
       });
     } else {
       res.json({
-        message: 'deleted',
+        message: "deleted",
         changes: result.affectedRows,
-        id: req.params.id
+        id: req.params.id,
       });
     }
   });
 });
 
 // Get all parties
-app.get('/api/parties', (req, res) => {
+app.get("/api/parties", (req, res) => {
   const sql = `SELECT * FROM parties`;
   db.query(sql, (err, rows) => {
     if (err) {
@@ -156,14 +156,14 @@ app.get('/api/parties', (req, res) => {
       return;
     }
     res.json({
-      message: 'success',
-      data: rows
+      message: "success",
+      data: rows,
     });
   });
 });
 
 // Get single party
-app.get('/api/party/:id', (req, res) => {
+app.get("/api/party/:id", (req, res) => {
   const sql = `SELECT * FROM parties WHERE id = ?`;
   const params = [req.params.id];
 
@@ -173,14 +173,14 @@ app.get('/api/party/:id', (req, res) => {
       return;
     }
     res.json({
-      message: 'success',
-      data: row
+      message: "success",
+      data: row,
     });
   });
 });
 
 // Delete a party
-app.delete('/api/party/:id', (req, res) => {
+app.delete("/api/party/:id", (req, res) => {
   const sql = `DELETE FROM parties WHERE id = ?`;
   const params = [req.params.id];
 
@@ -190,13 +190,13 @@ app.delete('/api/party/:id', (req, res) => {
       // checks if anything was deleted
     } else if (!result.affectedRows) {
       res.json({
-        message: 'Party not found'
+        message: "Party not found",
       });
     } else {
       res.json({
-        message: 'deleted',
+        message: "deleted",
         changes: result.affectedRows,
-        id: req.params.id
+        id: req.params.id,
       });
     }
   });
@@ -208,9 +208,9 @@ app.use((req, res) => {
 });
 
 // Start server after DB connection
-db.connect(err => {
+db.connect((err) => {
   if (err) throw err;
-  console.log('Database connected.');
+  console.log("Database connected.");
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
